@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/loyalty_card.dart';
-import 'package:loyalty_card_wallet/services/database_service.dart';
-import 'package:loyalty_card_wallet/services/notification_service.dart';
+import '../services/database_service.dart';
+import '../services/notification_service.dart';
 
 class CardProvider with ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();
@@ -83,24 +83,6 @@ class CardProvider with ChangeNotifier {
     }
   }
 
-  void addCard(LoyaltyCard card) {
-    _cards.add(card);
-    notifyListeners();
-  }
-
-  void removeCard(String cardId) {
-    _cards.removeWhere((card) => card.id == cardId);
-    notifyListeners();
-  }
-
-  void updateCard(String cardId, Map<String, dynamic> updatedCard) {
-    final index = _cards.indexWhere((card) => card.id == cardId);
-    if (index != -1) {
-      _cards[index] = updatedCard;
-      notifyListeners();
-    }
-  }
-
   Future<void> addCard(LoyaltyCard card) async {
     _isLoading = true;
     notifyListeners();
@@ -116,6 +98,7 @@ class CardProvider with ChangeNotifier {
       );
 
       _cards.add(newCard);
+      await _databaseService.saveCards(_cards);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -133,6 +116,7 @@ class CardProvider with ChangeNotifier {
       final index = _cards.indexWhere((c) => c.id == card.id);
       if (index != -1) {
         _cards[index] = card;
+        await _databaseService.saveCards(_cards);
         _isLoading = false;
         notifyListeners();
       }
@@ -149,6 +133,7 @@ class CardProvider with ChangeNotifier {
 
     try {
       _cards.removeWhere((card) => card.id == id);
+      await _databaseService.saveCards(_cards);
       _isLoading = false;
       notifyListeners();
     } catch (e) {

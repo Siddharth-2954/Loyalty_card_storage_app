@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -8,7 +7,6 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   factory NotificationService() => _instance;
 
@@ -36,17 +34,6 @@ class NotificationService {
         );
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-    // Request permission for notifications
-    await _messaging.requestPermission(alert: true, badge: true, sound: true);
-
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // TODO: Handle foreground messages
-    });
-
-    // Handle background messages
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
   Future<void> scheduleNotification({
@@ -112,8 +99,4 @@ class NotificationService {
   Future<void> cancelNotifications(String cardId) async {
     await _flutterLocalNotificationsPlugin.cancel(0);
   }
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // TODO: Handle background messages
 }
